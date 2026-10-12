@@ -46,15 +46,31 @@ app.use(
    CORS
 ========================================================= */
 
+const allowedOrigins = [
+    "http://localhost:5500",
+    "https://novapay-webapp.vercel.app",
+    process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(
     cors({
-        origin:
-            process.env.FRONTEND_URL ||
-            "http://localhost:5500",
+        origin: function (origin, callback) {
+            // Allow requests without an Origin header, such as
+            // server-to-server requests and command-line tools.
+            if (!origin || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
 
+            console.warn("CORS blocked origin:", origin);
+
+            return callback(
+                new Error("Origin not allowed by CORS")
+            );
+        },
         credentials: true
     })
 );
+
 
 /* =========================================================
    BODY PARSING
